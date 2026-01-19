@@ -1,0 +1,17 @@
+name: FAA Repair Station Tracking (React)
+description: Specialized prompts, instructions, and chat modes for building FAA Repair Station tracking software using React
+tags:
+  - react
+  - faa
+  - repair-station
+  - aviation
+  - tracking
+items:
+  - prompts/faa-repair-station-component.prompt.md
+  - prompts/faa-data-model.prompt.md
+  - prompts/faa-compliance-checker.prompt.md
+  - instructions/react-faa-best-practices.instructions.md
+  - instructions/faa-data-validation.instructions.md
+  - chatmodes/faa-architect.chatmode.md
+  - chatmodes/faa-compliance-expert.chatmode.md
+
