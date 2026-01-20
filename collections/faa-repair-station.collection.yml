@@ -48,3 +48,6 @@ items:
   - chatmodes/debug.chatmode.md
   - chatmodes/code-tour.chatmode.md
 
+  # AVM-2000 Legacy System
+  - instructions/avm-2000-repair-station.instructions.md
+  - chatmodes/avm-2000-expert.chatmode.md
