@@ -31,6 +31,12 @@ items:
   - instructions/springboot.instructions.md
   - chatmodes/principal-software-engineer.chatmode.md
   
+  # Architecture & Design
+  - chatmodes/api-architect.chatmode.md
+  - chatmodes/blueprint-mode.chatmode.md
+  - chatmodes/implementation-plan.chatmode.md
+  - chatmodes/declarative-agents-architect.chatmode.md
+  
   # FAA-specific instructions & modes
   - instructions/react-faa-best-practices.instructions.md
   - instructions/faa-data-validation.instructions.md
