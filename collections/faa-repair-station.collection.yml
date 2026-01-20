@@ -1,17 +1,44 @@
 name: FAA Repair Station Tracking (React)
-description: Specialized prompts, instructions, and chat modes for building FAA Repair Station tracking software using React
+description: Specialized prompts, instructions, and chat modes for building FAA Repair Station tracking software using React, TypeScript, and Java
 tags:
   - react
+  - typescript
+  - java
   - faa
   - repair-station
   - aviation
   - tracking
 items:
+  # FAA-specific prompts
   - prompts/faa-repair-station-component.prompt.md
   - prompts/faa-data-model.prompt.md
   - prompts/faa-compliance-checker.prompt.md
+  
+  # React & Frontend
+  - prompts/javascript-typescript-jest.prompt.md
+  - instructions/reactjs.instructions.md
+  - instructions/typescript-5-es2022.instructions.md
+  - instructions/nextjs.instructions.md
+  - instructions/nodejs-javascript-vitest.instructions.md
+  - chatmodes/expert-react-frontend-engineer.chatmode.md
+  
+  # Java backend
+  - prompts/java-docs.prompt.md
+  - prompts/java-junit.prompt.md
+  - prompts/java-springboot.prompt.md
+  - prompts/create-spring-boot-java-project.prompt.md
+  - instructions/java.instructions.md
+  - instructions/springboot.instructions.md
+  - chatmodes/principal-software-engineer.chatmode.md
+  
+  # FAA-specific instructions & modes
   - instructions/react-faa-best-practices.instructions.md
   - instructions/faa-data-validation.instructions.md
   - chatmodes/faa-architect.chatmode.md
   - chatmodes/faa-compliance-expert.chatmode.md
+  
+  # General best practices
+  - instructions/security-and-owasp.instructions.md
+  - chatmodes/debug.chatmode.md
+  - chatmodes/code-tour.chatmode.md
 
