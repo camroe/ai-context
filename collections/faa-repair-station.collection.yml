@@ -48,6 +48,11 @@ items:
   - chatmodes/debug.chatmode.md
   - chatmodes/code-tour.chatmode.md
 
+  # PostgreSQL
+  - prompts/postgresql-schema-design.prompt.md
+  - instructions/postgresql-best-practices.instructions.md
+  - chatmodes/postgresql-dba.chatmode.md
+
   # AVM-2000 Legacy System
   - instructions/avm-2000-repair-station.instructions.md
   - chatmodes/avm-2000-expert.chatmode.md
