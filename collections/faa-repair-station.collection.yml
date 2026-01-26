@@ -61,3 +61,5 @@ items:
 
   # FoxPro & Legacy
   - prompts/foxpro-expert.prompt.md
+  - references/foxpro-avm-schema-reference.md
+  - references/all_dbf_schemas.txt
