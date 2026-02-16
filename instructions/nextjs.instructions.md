@@ -2,11 +2,18 @@
 applyTo: '**'
 ---
 
-# Next.js Best Practices for LLMs (2025)
+# Next.js Best Practices for LLMs (2026)
 
-_Last updated: July 2025_
+_Last updated: February 2026 - Next.js 16+_
 
-This document summarizes the latest, authoritative best practices for building, structuring, and maintaining Next.js applications. It is intended for use by LLMs and developers to ensure code quality, maintainability, and scalability.
+This document summarizes the latest, authoritative best practices for building, structuring, and maintaining Next.js 16+ applications. It is intended for use by LLMs and developers to ensure code quality, maintainability, and scalability.
+
+## Version Requirements
+- **Next.js:** 16.0+ (Current: 16.1.6)
+- **Node.js:** 20.9+ (LTS)
+- **TypeScript:** 5.1+
+- **React:** 19.2+ (included with Next.js 16)
+- **Browsers:** Chrome 111+, Edge 111+, Firefox 111+, Safari 16.4+
 
 ---
 
@@ -31,13 +38,24 @@ This document summarizes the latest, authoritative best practices for building, 
 
 ## 2.1. Server and Client Component Integration (App Router)
 
-**Never use `next/dynamic` with `{ ssr: false }` inside a Server Component.** This is not supported and will cause a build/runtime error.
+**Cache Components and Dynamic Rendering:**
+- **Default behavior in Next.js 16:** All dynamic code executes at request time by default (no implicit caching)
+- **Opt-in caching:** Use `"use cache"` directive for explicit caching
+- **Never use `next/dynamic` with `{ ssr: false }` inside a Server Component** - Not supported
 
 **Correct Approach:**
-- If you need to use a Client Component (e.g., a component that uses hooks, browser APIs, or client-only libraries) inside a Server Component, you must:
-  1. Move all client-only logic/UI into a dedicated Client Component (with `'use client'` at the top).
-  2. Import and use that Client Component directly in the Server Component (no need for `next/dynamic`).
-  3. If you need to compose multiple client-only elements (e.g., a navbar with a profile dropdown), create a single Client Component that contains all of them.
+- Move client-only logic into dedicated Client Components (with `'use client'`)
+- Import Client Components directly in Server Components
+- Use Cache Components for performance-critical sections
+
+**Cache Components Example:**
+```tsx
+"use cache"
+export async function ExpensiveServerComponent() {
+  const data = await fetch('/api/data')
+  return <div>{data}</div>
+}
+```
 
 **Example:**
 
@@ -100,35 +118,118 @@ Always move client-only UI into a Client Component and import it directly in you
 - **Types/Interfaces:** `PascalCase`
 - **Constants:** `UPPER_SNAKE_CASE`
 
-## 4. API Routes (Route Handlers)
+## 4. API Routes (Route Handlers) & Proxy Configuration
 
-- **Prefer API Routes over Edge Functions** unless you need ultra-low latency or geographic distribution.
-- **Location:** Place API routes in `app/api/` (e.g., `app/api/users/route.ts`).
-- **HTTP Methods:** Export async functions named after HTTP verbs (`GET`, `POST`, etc.).
-- **Request/Response:** Use the Web `Request` and `Response` APIs. Use `NextRequest`/`NextResponse` for advanced features.
-- **Dynamic Segments:** Use `[param]` for dynamic API routes (e.g., `app/api/users/[id]/route.ts`).
-- **Validation:** Always validate and sanitize input. Use libraries like `zod` or `yup`.
-- **Error Handling:** Return appropriate HTTP status codes and error messages.
-- **Authentication:** Protect sensitive routes using middleware or server-side session checks.
+### Route Handlers
+- **Location:** Place API routes in `app/api/` (e.g., `app/api/users/route.ts`)
+- **HTTP Methods:** Export async functions named after HTTP verbs (`GET`, `POST`, etc.)
+- **Parameters:** Use `await params` and `await searchParams` (breaking change in v16)
+- **Server Functions:** Use `await cookies()`, `await headers()`, `await draftMode()`
+- **Validation:** Always validate with `zod` or similar libraries
 
-## 5. General Best Practices
+**Example with async parameters:**
+```tsx
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params // Must await in Next.js 16+
+  const searchParams = await request.searchParams // If needed
+  return Response.json({ id })
+}
+```
 
-- **TypeScript:** Use TypeScript for all code. Enable `strict` mode in `tsconfig.json`.
-- **ESLint & Prettier:** Enforce code style and linting. Use the official Next.js ESLint config.
-- **Environment Variables:** Store secrets in `.env.local`. Never commit secrets to version control.
-- **Testing:** Use Jest, React Testing Library, or Playwright. Write tests for all critical logic and components.
-- **Accessibility:** Use semantic HTML and ARIA attributes. Test with screen readers.
+### Proxy Configuration (formerly Middleware)
+- **Breaking Change:** `middleware.ts` → `proxy.ts`
+- **Runtime:** Node.js runtime (not Edge)
+- **Export:** Rename exported function to `proxy`
+
+**Migration:**
+```tsx
+// proxy.ts (NEW)
+export default function proxy(request: NextRequest) {
+  return NextResponse.redirect(new URL('/home', request.url))
+}
+
+// middleware.ts is deprecated (will be removed)
+```
+
+## 5. Cache Components & Modern Caching (Next.js 16)
+
+### Cache Components
+- **Enable in config:**
+```ts
+// next.config.ts
+const nextConfig = {
+  cacheComponents: true,
+}
+```
+
+- **Use `"use cache"` directive for explicit caching:**
+```tsx
+"use cache"
+export async function CachedComponent() {
+  const data = await expensiveOperation()
+  return <div>{data}</div>
+}
+```
+
+### New Caching APIs
+- **`updateTag(tag)`** - Server Actions only, immediate cache refresh with read-your-writes
+- **`refresh()`** - Server Actions only, refresh uncached data
+- **`revalidateTag(tag, profile)`** - Now requires cacheLife profile for SWR behavior
+
+```tsx
+'use server'
+import { updateTag, refresh, revalidateTag } from 'next/cache'
+
+// Immediate update (users see changes right away)
+export async function updateUserProfile(userId: string, profile: Profile) {
+  await db.users.update(userId, profile)
+  updateTag(`user-${userId}`)
+}
+
+// Background revalidation with SWR
+export async function refreshContent() {
+  revalidateTag('blog-posts', 'max') // Built-in cacheLife profile
+}
+
+// Refresh uncached dynamic data
+export async function markNotificationRead(id: string) {
+  await db.notifications.markAsRead(id)
+  refresh() // Refreshes uncached notification counts etc.
+}
+```
+
+## 6. Development & Build Experience
+
+### Turbopack (Default in v16)
+- **Default bundler** for all new projects (2-5× faster builds, up to 10× faster Fast Refresh)
+- **Opt out:** `next dev --webpack` or `next build --webpack`
+- **File system caching:** Enable with `experimental.turbopackFileSystemCacheForDev: true`
+
+### React Compiler (Stable)
+- **Automatic memoization** with zero manual changes
+- **Enable:**
+```ts
+// next.config.ts
+const nextConfig = {
+  reactCompiler: true, // Moved from experimental
+}
+```
+
+## 7. General Best Practices
+
+- **TypeScript:** Strict mode, TypeScript 5.1+ required
+- **Build Tools:** Turbopack default, React Compiler for optimization
+- **Caching:** Explicit with Cache Components and new APIs
+- **Environment:** Node.js 20.9+, modern browsers only
+- **Testing:** Playwright, Jest, React Testing Library
 - **Performance:**
-  - Use built-in Image and Font optimization.
-  - Use Suspense and loading states for async data.
-  - Avoid large client bundles; keep most logic in Server Components.
+  - Use Cache Components for expensive operations
+  - Leverage enhanced routing with layout deduplication
+  - Utilize Turbopack's faster builds and HMR
 - **Security:**
-  - Sanitize all user input.
-  - Use HTTPS in production.
-  - Set secure HTTP headers.
-- **Documentation:**
-  - Write clear README and code comments.
-  - Document public APIs and components.
+  - Use `proxy.ts` for request interception
+  - Validate all inputs with proper type checking
+  - Utilize new browser security features
 
 # Avoid Unnecessary Example Files
 

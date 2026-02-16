@@ -1,7 +1,7 @@
 id: frontend-web-dev
 name: Frontend Web Development
-description: Essential prompts, instructions, and chat modes for modern frontend web development including React, Angular, Vue, TypeScript, and CSS frameworks.
-tags: [frontend, web, react, typescript, javascript, css, html, angular, vue]
+description: Essential prompts, instructions, and chat modes for modern frontend web development including Next.js 16+, React 19.2+, Angular, Vue, TypeScript, and CSS frameworks. Updated for 2026 with latest best practices.
+tags: [frontend, web, react, typescript, javascript, css, html, angular, vue, nextjs16, turbopack]
 items:
   # Expert Chat Modes
   - path: chatmodes/expert-react-frontend-engineer.chatmode.md
